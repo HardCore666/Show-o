@@ -70,13 +70,21 @@ class UndTransConfig(PretrainedConfig):
 
 
 class DiffusionHeadConfig(PretrainedConfig):
-    def __init__(self, hidden_size=2048, head_dim=64, intermediate_size=8192):
+    def __init__(
+            self,
+            hidden_size=2048,
+            head_dim=64,
+            intermediate_size=8192,
+            num_attention_heads=32,
+            num_key_value_heads=8,
+            max_position_embeddings=131072,
+    ):
         self.attn_implementation = 'sdpa'
-        self.max_position_embeddings = 131072
+        self.max_position_embeddings = max_position_embeddings
         self.hidden_size = hidden_size
         self.intermediate_size = intermediate_size
-        self.num_attention_heads = 32
-        self.num_key_value_heads = 8
+        self.num_attention_heads = num_attention_heads
+        self.num_key_value_heads = num_key_value_heads
         self.hidden_act = 'silu'
         self.rms_norm_eps = 1e-05
         self.mlp_bias = False

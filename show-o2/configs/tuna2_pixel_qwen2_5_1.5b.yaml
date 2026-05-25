@@ -1,0 +1,118 @@
+wandb:
+  entity: null
+  resume: 'auto'
+  enabled: false
+
+experiment:
+    project: "tuna2-pixel-1.5b"
+    name: "tuna2-pixel-qwen2.5-1.5b"
+    output_dir: "tuna2-pixel-qwen2.5-1.5b"
+    save_every: 500
+    log_every: 20
+    checkpoints_total_limit: 3
+    resume_from_checkpoint: null
+
+model:
+    arch: "tuna2_pixel"
+    showo:
+        model_name: "Tuna2Pixel"
+        llm_model_path: "Qwen/Qwen2.5-1.5B-Instruct"
+        llm_vocab_size: null
+        load_stage1_model: null
+        init_llm_from_config: false
+        hidden_size: 1536
+        num_attention_heads: 24
+        num_key_value_heads: 8
+        image_size: 432
+        image_channels: 3
+        image_latent_dim: 3
+        pixel_patch_size: 16
+        patch_size: 16
+        num_diffusion_layers: 10
+        add_time_embeds: true
+        add_aspect_ratio_embeds: false
+        reshape_frame_to_batch_dim: false
+        use_mask_token: true
+        enable_mask_token: true
+        mask_ratio: 0.3
+        masked_image_ratio: 0.3
+        masked_image_ratio_min: -0.7
+        mmu_noise_prob: 0.1
+        mmu_noise_level: 0.1
+        und_max_t0: 1.0
+        noise_scale: 2.0
+        jit_p_mean: -0.8
+        jit_p_std: 0.8
+        jit_t_eps: 0.05
+        frozen_params: null
+
+    gradient_checkpointing: true
+
+dataset:
+    samp_probs: null
+    accumulation: 1
+    mixed_loader_mode: "max_size_cycle"
+    params:
+        train_t2i_shards_path_or_url: null
+        train_mmu_shards_path_or_url: null
+        annotation_path: null
+        train_tuna2_ti_path: null
+        train_tuna2_mmu_path: null
+        train_tuna2_edit_path: null
+        train_text_only_path: null
+        image_root: ""
+        default_system_prompt: ""
+        validation_prompts_file: "prompts/t2i_prompts.txt"
+        num_workers: 0
+        pin_memory: true
+        persistent_workers: false
+
+    preprocessing:
+        max_seq_length: 1024
+        resolution: 432
+        # 729 raw pixel patches + 1 time token. If add_aspect_ratio_embeds=true, use 732.
+        num_t2i_image_tokens: 730
+        num_mmu_image_tokens: 730
+        patch_grid_height: 27
+        patch_grid_width: 27
+        max_num_images: 2
+        min_res: [256, 256]
+
+optimizer:
+    name: adamw
+    params:
+        learning_rate: 0.0001
+        scale_lr: false
+        beta1: 0.9
+        beta2: 0.999
+        weight_decay: 0.0
+        epsilon: 1e-8
+
+lr_scheduler:
+    scheduler: "constant_with_warmup"
+    params:
+        learning_rate: ${optimizer.params.learning_rate}
+        warmup_steps: 100
+
+transport:
+    sampling_method: "euler"
+    guidance_scale: 7.5
+    num_inference_steps: 50
+    cfg_interval: null
+
+training:
+    gradient_accumulation_steps: 1
+    batch_size_t2i: 1
+    batch_size_mmu: 1
+    batch_size_text: 1
+    batch_size_edit: 1
+    mixed_precision: "bf16"
+    enable_tf32: true
+    seed: 10086
+    max_train_steps: 1000
+    cond_dropout_prob: 0.1
+    label_smoothing: 0.0
+    max_grad_norm: 1.0
+    ntp_coeff: 1.0
+    flow_coeff: 1.0
+    stage: "pre-training"

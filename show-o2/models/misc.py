@@ -9,8 +9,11 @@ from transformers import AutoTokenizer
 
 
 def next_token_prediction(logits, labels, vocab_szie):
-    return F.cross_entropy(logits[:, :-1].contiguous().view(-1, vocab_szie), labels[:, 1:].contiguous().view(-1),
+    loss = F.cross_entropy(logits[:, :-1].contiguous().view(-1, vocab_szie), labels[:, 1:].contiguous().view(-1),
                            ignore_index=-100)
+    if torch.isnan(loss):
+        return torch.tensor(0.0, device=logits.device, dtype=logits.dtype)
+    return loss
 
 
 def velocity_prediction(latents, labels, mask=None):
